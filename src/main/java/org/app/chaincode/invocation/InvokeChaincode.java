@@ -53,7 +53,7 @@ public class InvokeChaincode {
 
 	public static void main(String args[]) {
 		try {
-            Util.cleanUp();
+            //Util.cleanUp();
             Security.addProvider(new BouncyCastleProvider());
 			CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
 			
