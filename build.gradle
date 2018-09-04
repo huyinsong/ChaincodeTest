@@ -1,0 +1,20 @@
+apply plugin: 'java'
+sourceCompatibility = 10
+targetCompatibility= 10
+version = '1.0'
+
+compileJava{
+	options.encoding="UTF-8"
+}
+
+dependencies {
+    compile('org.hyperledger.fabric-sdk-java:fabric-sdk-java:1.2.0',
+    		'javax.activation:activation:1.1.1',
+    		,'javax.xml.bind:jaxb-api:2.3.0',
+    		'javax.xml.bind:jaxb-core:2.3.0',
+    		'javax.xml.bind:jaxb-impl:2.3.0')
+}
+
+repositories {
+    jcenter()
+}
