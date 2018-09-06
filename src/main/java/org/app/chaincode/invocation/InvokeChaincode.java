@@ -1,15 +1,3 @@
-/****************************************************** 
- *  Copyright 2018 IBM Corporation 
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
- *  You may obtain a copy of the License at 
- *  http://www.apache.org/licenses/LICENSE-2.0 
- *  Unless required by applicable law or agreed to in writing, software 
- *  distributed under the License is distributed on an "AS IS" BASIS, 
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- *  See the License for the specific language governing permissions and 
- *  limitations under the License.
- */ 
 package org.app.chaincode.invocation;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -19,10 +7,10 @@ import java.security.Security;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.app.client.CAClient;
 import org.app.client.ChannelClient;
 import org.app.client.FabricClient;
 import org.app.config.Config;
@@ -31,7 +19,6 @@ import org.app.util.Util;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.ChaincodeResponse.Status;
-import org.hyperledger.fabric.sdk.security.CryptoSuite;
 import org.hyperledger.fabric.sdk.Channel;
 import org.hyperledger.fabric.sdk.Enrollment;
 import org.hyperledger.fabric.sdk.EventHub;
@@ -39,12 +26,6 @@ import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.ProposalResponse;
 import org.hyperledger.fabric.sdk.TransactionProposalRequest;
-
-/**
- * 
- * @author Balaji Kadambi
- *
- */
 
 public class InvokeChaincode {
 
@@ -55,7 +36,6 @@ public class InvokeChaincode {
 		try {
             //Util.cleanUp();
             Security.addProvider(new BouncyCastleProvider());
-			CryptoSuite cryptoSuite = CryptoSuite.Factory.getCryptoSuite();
 			
 			UserContext org1Admin = new UserContext();
 			File pkFolder1 = new File(Config.ORG1_USR_ADMIN_PK);
@@ -72,10 +52,40 @@ public class InvokeChaincode {
 			
 			ChannelClient channelClient = fabClient.createChannelClient(Config.CHANNEL_NAME);
 			Channel channel = channelClient.getChannel();
-			Peer peer = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL);
-			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpc://localhost:7053");
+			
+			
+			Properties peer0_org1_properties = new Properties();
+			peer0_org1_properties.setProperty("pemFile", Config.PEER0_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
+			peer0_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer0_org1_properties.setProperty("sshProvider", "openSSL");
+			peer0_org1_properties.setProperty("negotiationType", "TLS");
+			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
+
+			Properties peer1_org1_properties = new Properties();
+			peer1_org1_properties.setProperty("pemFile", Config.PEER1_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
+			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org1_properties.setProperty("sshProvider", "openSSL");
+			peer1_org1_properties.setProperty("negotiationType", "TLS");
+			Peer peer1_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_1, Config.ORG1_PEER_1_URL, peer1_org1_properties);
+
+			Properties peer0_org2_properties = new Properties();
+			peer0_org2_properties.setProperty("pemFile", Config.PEER0_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
+			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer0_org2_properties.setProperty("sshProvider", "openSSL");
+			peer0_org2_properties.setProperty("negotiationType", "TLS");
+			Peer peer0_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_0, Config.ORG2_PEER_0_URL, peer0_org2_properties);
+
+			Properties peer1_org2_properties = new Properties();
+			peer1_org2_properties.setProperty("pemFile", Config.PEER1_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
+			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org2_properties.setProperty("sshProvider", "openSSL");
+			peer1_org2_properties.setProperty("negotiationType", "TLS");
+			Peer peer1_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_1, Config.ORG2_PEER_1_URL, peer1_org2_properties);
+			
+			
+			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpcs://localhost:7053");
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
-			channel.addPeer(peer);
+			channel.addPeer(peer0_org1);
 			channel.addEventHub(eventHub);
 			channel.addOrderer(orderer);
 			channel.initialize();

@@ -1,20 +1,9 @@
-/****************************************************** 
- *  Copyright 2018 IBM Corporation 
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
- *  You may obtain a copy of the License at 
- *  http://www.apache.org/licenses/LICENSE-2.0 
- *  Unless required by applicable law or agreed to in writing, software 
- *  distributed under the License is distributed on an "AS IS" BASIS, 
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- *  See the License for the specific language governing permissions and 
- *  limitations under the License.
- */ 
 package org.app.chaincode.invocation;
 
 import java.io.File;
 import java.security.Security;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,12 +19,6 @@ import org.hyperledger.fabric.sdk.EventHub;
 import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.ProposalResponse;
-
-/**
- * 
- * @author Balaji Kadambi
- *
- */
 
 public class QueryChaincode {
 
@@ -60,10 +43,17 @@ public class QueryChaincode {
 						
 			ChannelClient channelClient = fabClient.createChannelClient(Config.CHANNEL_NAME);
 			Channel channel = channelClient.getChannel();
-			Peer peer = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL);
-			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpc://localhost:7053");
+			
+			Properties peer0_org1_properties = new Properties();
+			peer0_org1_properties.setProperty("pemFile", Config.PEER0_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
+			peer0_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer0_org1_properties.setProperty("sshProvider", "openSSL");
+			peer0_org1_properties.setProperty("negotiationType", "TLS");
+			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
+			
+			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpcs://localhost:7053");
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
-			channel.addPeer(peer);
+			channel.addPeer(peer0_org1);
 			channel.addEventHub(eventHub);
 			channel.addOrderer(orderer);
 			channel.initialize();
