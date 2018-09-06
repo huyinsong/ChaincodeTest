@@ -42,8 +42,7 @@ public class InvokeChaincode {
 			File[] pkFiles1 = pkFolder1.listFiles();
 			File certFolder = new File(Config.ORG1_USR_ADMIN_CERT);
 			File[] certFiles = certFolder.listFiles();
-			Enrollment enrollOrg1Admin = Util.getEnrollment(Config.ORG1_USR_ADMIN_PK, pkFiles1[0].getName(),
-					Config.ORG1_USR_ADMIN_CERT, certFiles[0].getName());
+			Enrollment enrollOrg1Admin = Util.getEnrollment(Config.ORG1_USR_ADMIN_PK, pkFiles1[0].getName(),Config.ORG1_USR_ADMIN_CERT, certFiles[0].getName());
 			org1Admin.setEnrollment(enrollOrg1Admin);
 			org1Admin.setMspId("Org1MSP");
 			org1Admin.setName("admin");
@@ -53,7 +52,7 @@ public class InvokeChaincode {
 			ChannelClient channelClient = fabClient.createChannelClient(Config.CHANNEL_NAME);
 			Channel channel = channelClient.getChannel();
 			
-			
+			EventHub eventHub_org1_peer0 = fabClient.getInstance().newEventHub("eventhub01", Config.ORG1_PEER_0_EVENT);
 			Properties peer0_org1_properties = new Properties();
 			peer0_org1_properties.setProperty("pemFile", Config.PEER0_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
 			peer0_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
@@ -61,32 +60,44 @@ public class InvokeChaincode {
 			peer0_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
 
+			EventHub eventHub_org1_peer1 = fabClient.getInstance().newEventHub("eventhub02", Config.ORG1_PEER_1_EVENT);
 			Properties peer1_org1_properties = new Properties();
 			peer1_org1_properties.setProperty("pemFile", Config.PEER1_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
-			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_1);
 			peer1_org1_properties.setProperty("sshProvider", "openSSL");
 			peer1_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_1, Config.ORG1_PEER_1_URL, peer1_org1_properties);
-
+			
+			EventHub eventHub_org2_peer0 = fabClient.getInstance().newEventHub("eventhub03", Config.ORG2_PEER_0_EVENT);
 			Properties peer0_org2_properties = new Properties();
 			peer0_org2_properties.setProperty("pemFile", Config.PEER0_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
-			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_0);
 			peer0_org2_properties.setProperty("sshProvider", "openSSL");
 			peer0_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_0, Config.ORG2_PEER_0_URL, peer0_org2_properties);
 
+			
+			EventHub eventHub_org2_peer1 = fabClient.getInstance().newEventHub("eventhub04", Config.ORG2_PEER_1_EVENT);
 			Properties peer1_org2_properties = new Properties();
 			peer1_org2_properties.setProperty("pemFile", Config.PEER1_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
-			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_1);
 			peer1_org2_properties.setProperty("sshProvider", "openSSL");
 			peer1_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_1, Config.ORG2_PEER_1_URL, peer1_org2_properties);
 			
 			
-			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpcs://localhost:7053");
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
+			
 			channel.addPeer(peer0_org1);
-			channel.addEventHub(eventHub);
+			channel.addPeer(peer1_org1);
+			channel.addPeer(peer0_org2);
+			channel.addPeer(peer1_org2);
+			
+			channel.addEventHub(eventHub_org1_peer0);
+			channel.addEventHub(eventHub_org1_peer1);
+			channel.addEventHub(eventHub_org2_peer0);
+			channel.addEventHub(eventHub_org2_peer1);
+			
 			channel.addOrderer(orderer);
 			channel.initialize();
 

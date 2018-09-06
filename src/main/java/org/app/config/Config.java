@@ -44,19 +44,27 @@ public class Config {
 	
 	public static final String ORG1_PEER_0 = "peer0.org1.example.com";
 	
-	public static final String ORG1_PEER_0_URL = "grpc://localhost:7051";
+	public static final String ORG1_PEER_0_URL = "grpcs://localhost:7051";
+	
+	public static final String ORG1_PEER_0_EVENT = "grpcs://localhost:7053";
 	
 	public static final String ORG1_PEER_1 = "peer1.org1.example.com";
 	
 	public static final String ORG1_PEER_1_URL = "grpcs://localhost:7056";
 	
+	public static final String ORG1_PEER_1_EVENT = "grpcs://localhost:7058";
+	
     public static final String ORG2_PEER_0 = "peer0.org2.example.com";
 	
 	public static final String ORG2_PEER_0_URL = "grpcs://localhost:8051";
 	
+	public static final String ORG2_PEER_0_EVENT = "grpcs://localhost:8053";
+
 	public static final String ORG2_PEER_1 = "peer1.org2.example.com";
 	
 	public static final String ORG2_PEER_1_URL = "grpcs://localhost:8056";
+	
+	public static final String ORG2_PEER_1_EVENT = "grpcs://localhost:8058";
 	
 	public static final String CHAINCODE_ROOT_DIR = "/Users/huyinsong/workspace/java/ChaincodeTest/resources/chaincode";
 	

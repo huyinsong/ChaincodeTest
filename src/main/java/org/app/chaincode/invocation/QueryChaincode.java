@@ -33,8 +33,7 @@ public class QueryChaincode {
 			File[] pkFiles1 = pkFolder1.listFiles();
 			File certFolder = new File(Config.ORG1_USR_ADMIN_CERT);
 			File[] certFiles = certFolder.listFiles();
-			Enrollment enrollOrg1Admin = Util.getEnrollment(Config.ORG1_USR_ADMIN_PK, pkFiles1[0].getName(),
-					Config.ORG1_USR_ADMIN_CERT, certFiles[0].getName());
+			Enrollment enrollOrg1Admin = Util.getEnrollment(Config.ORG1_USR_ADMIN_PK, pkFiles1[0].getName(),Config.ORG1_USR_ADMIN_CERT, certFiles[0].getName());
 			org1Admin.setEnrollment(enrollOrg1Admin);
 			org1Admin.setMspId("Org1MSP");
 			org1Admin.setName("admin");
@@ -51,7 +50,7 @@ public class QueryChaincode {
 			peer0_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
 			
-			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", "grpcs://localhost:7053");
+			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", Config.ORG1_PEER_0_EVENT);
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
 			channel.addPeer(peer0_org1);
 			channel.addEventHub(eventHub);
