@@ -51,7 +51,14 @@ public class QueryChaincode {
 			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
 			
 			EventHub eventHub = fabClient.getInstance().newEventHub("eventhub01", Config.ORG1_PEER_0_EVENT);
-			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
+
+			Properties orderer_properties = new Properties();
+			orderer_properties.setProperty("pemFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"server.crt");
+			orderer_properties.setProperty("hostnameOverride", Config.ORDERER_NAME);
+			orderer_properties.setProperty("sshProvider", "openSSL");
+			orderer_properties.setProperty("negotiationType", "TLS");
+			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL,orderer_properties);
+			
 			channel.addPeer(peer0_org1);
 			channel.addEventHub(eventHub);
 			channel.addOrderer(orderer);

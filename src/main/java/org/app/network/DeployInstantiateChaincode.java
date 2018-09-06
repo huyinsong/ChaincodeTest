@@ -73,7 +73,15 @@ public class DeployInstantiateChaincode {
 			FabricClient fabClient = new FabricClient(org1Admin);
 
 			Channel mychannel = fabClient.getInstance().newChannel(Config.CHANNEL_NAME);
-			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
+			
+			Properties orderer_properties = new Properties();
+			orderer_properties.setProperty("pemFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"server.crt");
+			orderer_properties.setProperty("hostnameOverride", Config.ORDERER_NAME);
+			orderer_properties.setProperty("sshProvider", "openSSL");
+			orderer_properties.setProperty("negotiationType", "TLS");
+			
+			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL,orderer_properties);
+			
 			
 			Properties peer0_org1_properties = new Properties();
 			peer0_org1_properties.setProperty("pemFile", Config.PEER0_ORG1_TLS_CERT_PATH+File.separator+"server.crt");

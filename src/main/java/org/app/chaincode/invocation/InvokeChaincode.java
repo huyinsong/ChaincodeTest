@@ -85,9 +85,13 @@ public class InvokeChaincode {
 			peer1_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_1, Config.ORG2_PEER_1_URL, peer1_org2_properties);
 			
-			
-			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL);
-			
+			Properties orderer_properties = new Properties();
+			orderer_properties.setProperty("pemFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"server.crt");
+			orderer_properties.setProperty("hostnameOverride", Config.ORDERER_NAME);
+			orderer_properties.setProperty("sshProvider", "openSSL");
+			orderer_properties.setProperty("negotiationType", "TLS");
+			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL,orderer_properties);
+						
 			channel.addPeer(peer0_org1);
 			channel.addPeer(peer1_org1);
 			channel.addPeer(peer0_org2);
@@ -102,7 +106,7 @@ public class InvokeChaincode {
 			channel.initialize();
 
 			TransactionProposalRequest request = fabClient.getInstance().newTransactionProposalRequest();
-			ChaincodeID ccid = ChaincodeID.newBuilder().setName(Config.CHAINCODE_1_NAME).build();
+			ChaincodeID ccid = ChaincodeID.newBuilder().setName(Config.CHAINCODE_1_NAME).setVersion("1").build();
 			request.setChaincodeID(ccid);
 			request.setFcn("put");
 			String[] arguments = { "say","hello world" };
