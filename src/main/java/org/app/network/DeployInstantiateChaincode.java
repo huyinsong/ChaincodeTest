@@ -84,24 +84,30 @@ public class DeployInstantiateChaincode {
 
 			Properties peer1_org1_properties = new Properties();
 			peer1_org1_properties.setProperty("pemFile", Config.PEER1_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
-			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_1);
 			peer1_org1_properties.setProperty("sshProvider", "openSSL");
 			peer1_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_1, Config.ORG1_PEER_1_URL, peer1_org1_properties);
 
 			Properties peer0_org2_properties = new Properties();
 			peer0_org2_properties.setProperty("pemFile", Config.PEER0_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
-			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_0);
 			peer0_org2_properties.setProperty("sshProvider", "openSSL");
 			peer0_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_0, Config.ORG2_PEER_0_URL, peer0_org2_properties);
 
 			Properties peer1_org2_properties = new Properties();
 			peer1_org2_properties.setProperty("pemFile", Config.PEER1_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
-			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
+			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_1);
 			peer1_org2_properties.setProperty("sshProvider", "openSSL");
 			peer1_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_1, Config.ORG2_PEER_1_URL, peer1_org2_properties);
+			
+			
+			/*Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL);
+			Peer peer1_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_1, Config.ORG1_PEER_1_URL);
+			Peer peer0_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_0, Config.ORG2_PEER_0_URL);
+			Peer peer1_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_1, Config.ORG2_PEER_1_URL);*/
 			
 			mychannel.addOrderer(orderer);
 			mychannel.addPeer(peer0_org1);

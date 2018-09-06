@@ -1,16 +1,3 @@
-/****************************************************** 
- *  Copyright 2018 IBM Corporation 
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
- *  you may not use this file except in compliance with the License. 
- *  You may obtain a copy of the License at 
- *  http://www.apache.org/licenses/LICENSE-2.0 
- *  Unless required by applicable law or agreed to in writing, software 
- *  distributed under the License is distributed on an "AS IS" BASIS, 
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- *  See the License for the specific language governing permissions and 
- *  limitations under the License.
- */
-
 package org.app.util;
 
 import java.io.BufferedReader;
@@ -22,27 +9,32 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.DatatypeConverter;
 
+import org.apache.commons.io.IOUtils;
 import org.app.user.CAEnrollment;
 import org.app.user.UserContext;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.hyperledger.fabric.sdk.Enrollment;
+import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric.sdk.exception.CryptoException;
-
-/**
- * 
- * @author Balaji Kadambi
- *
- */
 
 public class Util {
 
@@ -141,27 +133,96 @@ public class Util {
 		CAEnrollment enrollment = new CAEnrollment(key, certificate);
 		return enrollment;
 	}
-	
+
 	public static void cleanUp() {
 		String directoryPath = "users";
 		File directory = new File(directoryPath);
 		deleteDirectory(directory);
 	}
-	
-	  public static boolean deleteDirectory(File dir) {
-	        if (dir.isDirectory()) {
-	            File[] children = dir.listFiles();
-	            for (int i = 0; i < children.length; i++) {
-	                boolean success = deleteDirectory(children[i]);
-	                if (!success) {
-	                    return false;
-	                }
-	            }
-	        }
 
-	        // either file or an empty directory
-	        Logger.getLogger(Util.class.getName()).log(Level.INFO, "Deleting - " + dir.getName());
-	        return dir.delete();
-	    }
+	public static boolean deleteDirectory(File dir) {
+		if (dir.isDirectory()) {
+			File[] children = dir.listFiles();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDirectory(children[i]);
+				if (!success) {
+					return false;
+				}
+			}
+		}
 
+		// either file or an empty directory
+		Logger.getLogger(Util.class.getName()).log(Level.INFO, "Deleting - " + dir.getName());
+		return dir.delete();
+	}
+
+	public static User getUser(final String name, final String mspId, File privateKeyFile, File certificateFile)
+			throws IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
+		try {
+			final String certificate = new String(IOUtils.toByteArray(new FileInputStream(certificateFile)), "UTF-8");
+			final PrivateKey privateKey = getPrivateKeyFromBytes(
+					IOUtils.toByteArray(new FileInputStream(privateKeyFile)));
+			User user = new User() {
+				public String getName() {
+					return name;
+				}
+
+				public Set<String> getRoles() {
+					return null;
+				}
+
+				public String getAccount() {
+					return null;
+				}
+
+				public String getAffiliation() {
+					return null;
+				}
+
+				public Enrollment getEnrollment() {
+					return new Enrollment() {
+						public PrivateKey getKey() {
+							return privateKey;
+						}
+
+						public String getCert() {
+							return certificate;
+						}
+					};
+				}
+
+				public String getMspId() {
+					return mspId;
+				}
+			};
+			return user;
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (NoSuchProviderException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (InvalidKeySpecException e) {
+			e.printStackTrace();
+			throw e;
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
+
+	public static PrivateKey getPrivateKeyFromBytes(byte[] data)
+			throws IOException, NoSuchProviderException, NoSuchAlgorithmException, InvalidKeySpecException {
+		final Reader pemReader = new StringReader(new String(data));
+		final PrivateKeyInfo pemPair;
+		try (PEMParser pemParser = new PEMParser(pemReader)) {
+			pemPair = (PrivateKeyInfo) pemParser.readObject();
+		}
+		PrivateKey privateKey = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME)
+				.getPrivateKey(pemPair);
+		return privateKey;
+	}
 }
