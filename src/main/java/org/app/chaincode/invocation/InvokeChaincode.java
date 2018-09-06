@@ -34,7 +34,7 @@ public class InvokeChaincode {
 
 	public static void main(String args[]) {
 		try {
-            //Util.cleanUp();
+            Util.cleanUp();
             Security.addProvider(new BouncyCastleProvider());
 			
 			UserContext org1Admin = new UserContext();

@@ -66,20 +66,23 @@ public class Config {
 	
 	public static final String ORG2_PEER_1_EVENT = "grpcs://localhost:8058";
 	
-	public static final String CHAINCODE_ROOT_DIR = "/Users/huyinsong/workspace/java/ChaincodeTest/resources/chaincode";
+	public static final String CHAINCODE_ROOT_DIR = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/chaincode";
 	
 	public static final String CHAINCODE_1_NAME = "test";
 	
-	public static final String CHAINCODE_1_PATH = "test";
+	public static final String CHAINCODE_1_PATH = "github.com/test";
 	
 	public static final String CHAINCODE_1_VERSION = "1";
+	
+	public static final String ORDERER_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls";
+
 	
 	public static final String PEER0_ORG1_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org1.example.com" + File.separator + "peers" + File.separator + "peer0.org1.example.com" + File.separator + "tls";
 
 	public static final String PEER1_ORG1_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org1.example.com" + File.separator + "peers" + File.separator + "peer1.org1.example.com" + File.separator + "tls";
 	
-	public static final String PEER0_ORG2_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org2.example.com" + File.separator + "peers" + File.separator + "peer0.org1.example.com" + File.separator + "tls";
+	public static final String PEER0_ORG2_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org2.example.com" + File.separator + "peers" + File.separator + "peer0.org2.example.com" + File.separator + "tls";
 	
-	public static final String PEER1_ORG2_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org2.example.com" + File.separator + "peers" + File.separator + "peer1.org1.example.com" + File.separator + "tls";
+	public static final String PEER1_ORG2_TLS_CERT_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator + "org2.example.com" + File.separator + "peers" + File.separator + "peer1.org2.example.com" + File.separator + "tls";
 
 }
