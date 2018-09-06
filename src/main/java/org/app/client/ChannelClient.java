@@ -93,18 +93,22 @@ public class ChannelClient {
 	 */
 	public Collection<ProposalResponse> sendTransactionProposal(TransactionProposalRequest request)
 			throws ProposalException, InvalidArgumentException {
-		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,
-				"Sending transaction proposal on channel " + channel.getName());
-
+		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Sending transaction proposal on channel " + channel.getName());
+		long beforeEndorsement =  System.currentTimeMillis();
 		Collection<ProposalResponse> response = channel.sendTransactionProposal(request, channel.getPeers());
+		long afterEndorsement =  System.currentTimeMillis();
+		System.out.println("Endorsement cost:"+ (afterEndorsement-beforeEndorsement));
+		long beforeRunAllTransaction = System.currentTimeMillis();
 		for (ProposalResponse pres : response) {
+			long beforeSendTransaction = System.currentTimeMillis();
 			String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-			Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,
-					"Transaction proposal on channel " + channel.getName() + " " + pres.getMessage() + " "
-							+ pres.getStatus() + " with transaction id:" + pres.getTransactionID());
-			Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,stringResponse);
+			long afterSendTransaction = System.currentTimeMillis();
+			System.out.println("Send transaction cost:"+(afterSendTransaction-beforeSendTransaction));
+			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Transaction proposal on channel " + channel.getName() + " " + pres.getMessage() + " "+ pres.getStatus() + " with transaction id:" + pres.getTransactionID());
+			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,stringResponse);
 		}
-
+		long afterRunAllTransaction = System.currentTimeMillis();
+		System.out.println("Send All transaction cost:"+(afterRunAllTransaction-beforeRunAllTransaction));
 		CompletableFuture<TransactionEvent> cf = channel.sendTransaction(response);
 		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,cf.toString());
 
