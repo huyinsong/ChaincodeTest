@@ -18,19 +18,15 @@ public class Config {
 	
 	public static final String CHANNEL_CONFIG_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/config/channel.tx";
 	
-	public static final String ORG1_USR_BASE_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator
-			+ "org1.example.com" + File.separator + "users" + File.separator + "Admin@org1.example.com"
-			+ File.separator + "msp";
+	public static final String ORG1_USR_BASE_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp";
 	
-	public static final String ORG2_USR_BASE_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config" + File.separator + "peerOrganizations" + File.separator
-			+ "org2.example.com" + File.separator + "users" + File.separator + "Admin@org2.example.com"
-			+ File.separator + "msp";
+	public static final String ORG2_USR_BASE_PATH = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp";
 	
-	public static final String ORG1_USR_ADMIN_PK = ORG1_USR_BASE_PATH + File.separator + "keystore";
-	public static final String ORG1_USR_ADMIN_CERT = ORG1_USR_BASE_PATH + File.separator + "admincerts";
+	public static final String ORG1_USR_ADMIN_PK = ORG1_USR_BASE_PATH + "/keystore";
+	public static final String ORG1_USR_ADMIN_CERT = ORG1_USR_BASE_PATH + "/admincerts";
 
-	public static final String ORG2_USR_ADMIN_PK = ORG2_USR_BASE_PATH + File.separator + "keystore";
-	public static final String ORG2_USR_ADMIN_CERT = ORG2_USR_BASE_PATH + File.separator + "admincerts";
+	public static final String ORG2_USR_ADMIN_PK = ORG2_USR_BASE_PATH + "/keystore";
+	public static final String ORG2_USR_ADMIN_CERT = ORG2_USR_BASE_PATH + "/admincerts";
 	
 	public static final String CA_ORG1_URL = "http://localhost:7054";
 	
@@ -50,21 +46,21 @@ public class Config {
 	
 	public static final String ORG1_PEER_1 = "peer1.org1.example.com";
 	
-	public static final String ORG1_PEER_1_URL = "grpcs://localhost:7056";
+	public static final String ORG1_PEER_1_URL = "grpcs://localhost:8051";
 	
-	public static final String ORG1_PEER_1_EVENT = "grpcs://localhost:7058";
+	public static final String ORG1_PEER_1_EVENT = "grpcs://localhost:8053";
 	
     public static final String ORG2_PEER_0 = "peer0.org2.example.com";
 	
-	public static final String ORG2_PEER_0_URL = "grpcs://localhost:8051";
+	public static final String ORG2_PEER_0_URL = "grpcs://localhost:9051";
 	
-	public static final String ORG2_PEER_0_EVENT = "grpcs://localhost:8053";
+	public static final String ORG2_PEER_0_EVENT = "grpcs://localhost:9053";
 
 	public static final String ORG2_PEER_1 = "peer1.org2.example.com";
 	
-	public static final String ORG2_PEER_1_URL = "grpcs://localhost:8056";
+	public static final String ORG2_PEER_1_URL = "grpcs://localhost:10051";
 	
-	public static final String ORG2_PEER_1_EVENT = "grpcs://localhost:8058";
+	public static final String ORG2_PEER_1_EVENT = "grpcs://localhost:10053";
 	
 	public static final String CHAINCODE_ROOT_DIR = "/Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/chaincode";
 	
