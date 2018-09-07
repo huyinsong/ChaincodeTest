@@ -5,9 +5,14 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,7 +21,9 @@ import org.hyperledger.fabric.sdk.ChaincodeEndorsementPolicy;
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.Channel;
 import org.hyperledger.fabric.sdk.InstantiateProposalRequest;
+import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
+import org.hyperledger.fabric.sdk.Peer.PeerRole;
 import org.hyperledger.fabric.sdk.ProposalResponse;
 import org.hyperledger.fabric.sdk.QueryByChaincodeRequest;
 import org.hyperledger.fabric.sdk.TransactionInfo;
@@ -90,27 +97,47 @@ public class ChannelClient {
 	 * @return
 	 * @throws ProposalException
 	 * @throws InvalidArgumentException
+	 * @throws ExecutionException 
+	 * @throws InterruptedException 
+	 * @throws TimeoutException 
 	 */
 	public Collection<ProposalResponse> sendTransactionProposal(TransactionProposalRequest request)
-			throws ProposalException, InvalidArgumentException {
+			throws ProposalException, InvalidArgumentException, InterruptedException, ExecutionException, TimeoutException {
 		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Sending transaction proposal on channel " + channel.getName());
 		long beforeEndorsement =  System.currentTimeMillis();
 		Collection<ProposalResponse> response = channel.sendTransactionProposal(request, channel.getPeers());
 		long afterEndorsement =  System.currentTimeMillis();
 		System.out.println("Endorsement cost:"+ (afterEndorsement-beforeEndorsement));
-		long beforeRunAllTransaction = System.currentTimeMillis();
+		Collection<ProposalResponse> successful = new LinkedList<>();
 		for (ProposalResponse pres : response) {
-			long beforeSendTransaction = System.currentTimeMillis();
 			String stringResponse = new String(pres.getChaincodeActionResponsePayload());
-			long afterSendTransaction = System.currentTimeMillis();
-			System.out.println("Send transaction cost:"+(afterSendTransaction-beforeSendTransaction));
+			if (pres.getStatus() == ProposalResponse.Status.SUCCESS) {
+                successful.add(pres);
+            } 
+			
 			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Transaction proposal on channel " + channel.getName() + " " + pres.getMessage() + " "+ pres.getStatus() + " with transaction id:" + pres.getTransactionID());
 			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,stringResponse);
 		}
-		long afterRunAllTransaction = System.currentTimeMillis();
-		System.out.println("Send All transaction cost:"+(afterRunAllTransaction-beforeRunAllTransaction));
-		CompletableFuture<TransactionEvent> cf = channel.sendTransaction(response);
-		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,cf.toString());
+
+        Channel.NOfEvents nOfEvents = Channel.NOfEvents.createNofEvents();
+        if (!channel.getPeers(EnumSet.of(PeerRole.EVENT_SOURCE)).isEmpty()) {
+            nOfEvents.addPeers(channel.getPeers(EnumSet.of(PeerRole.EVENT_SOURCE)));
+        }
+		Collection<Orderer> orderers = channel.getOrderers();
+		long beforeTransaction = System.currentTimeMillis();
+		channel.sendTransaction(successful, Channel.TransactionOptions.createTransactionOptions().orderers(orderers).shuffleOrders(false).nOfEvents(nOfEvents)).thenApply(transactionEvent -> {
+			try {
+				System.out.println("transaction event :"+transactionEvent.isValid());
+                System.out.println("block index:"+transactionEvent.getBlockEvent().getBlockNumber());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return null;
+
+        }).get(30, TimeUnit.SECONDS);
+		long afterTransaction = System.currentTimeMillis();
+		System.out.println("Sending transaction cost:"+ (afterTransaction - beforeTransaction));
+		System.out.println("The end");
 
 		return response;
 	}
