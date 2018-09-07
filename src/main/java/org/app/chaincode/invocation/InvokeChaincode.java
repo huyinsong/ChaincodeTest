@@ -5,35 +5,25 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import java.io.File;
 import java.security.Security;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Vector;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
 import org.app.client.ChannelClient;
 import org.app.client.FabricClient;
-import org.app.config.ChaincodeEventCapture;
 import org.app.config.Config;
 import org.app.user.UserContext;
 import org.app.util.Util;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.hyperledger.fabric.sdk.BlockEvent;
-import org.hyperledger.fabric.sdk.BlockchainInfo;
+import org.hyperledger.fabric.sdk.BlockEvent.TransactionEvent;
 import org.hyperledger.fabric.sdk.ChaincodeID;
 import org.hyperledger.fabric.sdk.ChaincodeResponse.Status;
 import org.hyperledger.fabric.sdk.Channel.PeerOptions;
 import org.hyperledger.fabric.sdk.Peer.PeerRole;
 import org.hyperledger.fabric.sdk.Channel;
 import org.hyperledger.fabric.sdk.Enrollment;
-import org.hyperledger.fabric.sdk.EventHub;
 import org.hyperledger.fabric.sdk.Orderer;
 import org.hyperledger.fabric.sdk.Peer;
 import org.hyperledger.fabric.sdk.ProposalResponse;
@@ -64,7 +54,6 @@ public class InvokeChaincode {
 			ChannelClient channelClient = fabClient.createChannelClient(Config.CHANNEL_NAME);
 			Channel channel = channelClient.getChannel();
 			
-			//EventHub eventHub_org1_peer0 = fabClient.getInstance().newEventHub("eventhub01", Config.ORG1_PEER_0_EVENT);
 			Properties peer0_org1_properties = new Properties();
 			peer0_org1_properties.setProperty("pemFile", Config.PEER0_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
 			peer0_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_0);
@@ -72,7 +61,6 @@ public class InvokeChaincode {
 			peer0_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_0, Config.ORG1_PEER_0_URL, peer0_org1_properties);
 
-			//EventHub eventHub_org1_peer1 = fabClient.getInstance().newEventHub("eventhub02", Config.ORG1_PEER_1_EVENT);
 			Properties peer1_org1_properties = new Properties();
 			peer1_org1_properties.setProperty("pemFile", Config.PEER1_ORG1_TLS_CERT_PATH+File.separator+"server.crt");
 			peer1_org1_properties.setProperty("hostnameOverride", Config.ORG1_PEER_1);
@@ -80,7 +68,6 @@ public class InvokeChaincode {
 			peer1_org1_properties.setProperty("negotiationType", "TLS");
 			Peer peer1_org1 = fabClient.getInstance().newPeer(Config.ORG1_PEER_1, Config.ORG1_PEER_1_URL, peer1_org1_properties);
 			
-			//EventHub eventHub_org2_peer0 = fabClient.getInstance().newEventHub("eventhub03", Config.ORG2_PEER_0_EVENT);
 			Properties peer0_org2_properties = new Properties();
 			peer0_org2_properties.setProperty("pemFile", Config.PEER0_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
 			peer0_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_0);
@@ -88,8 +75,6 @@ public class InvokeChaincode {
 			peer0_org2_properties.setProperty("negotiationType", "TLS");
 			Peer peer0_org2 = fabClient.getInstance().newPeer(Config.ORG2_PEER_0, Config.ORG2_PEER_0_URL, peer0_org2_properties);
 
-			
-			//EventHub eventHub_org2_peer1 = fabClient.getInstance().newEventHub("eventhub04", Config.ORG2_PEER_1_EVENT);
 			Properties peer1_org2_properties = new Properties();
 			peer1_org2_properties.setProperty("pemFile", Config.PEER1_ORG2_TLS_CERT_PATH+File.separator+"server.crt");
 			peer1_org2_properties.setProperty("hostnameOverride", Config.ORG2_PEER_1);
@@ -127,11 +112,8 @@ public class InvokeChaincode {
 			tm2.put("result", ":)".getBytes(UTF_8));
 			tm2.put(EXPECTED_EVENT_NAME, EXPECTED_EVENT_DATA); 
 			request.setTransientMap(tm2);
-			Collection<ProposalResponse> responses = channelClient.sendTransactionProposal(request);
-			for (ProposalResponse res: responses) {
-				Status status = res.getStatus();
-				Logger.getLogger(InvokeChaincode.class.getName()).log(Level.INFO,"Invoked test on "+Config.CHAINCODE_1_NAME + ". Status - " + status);
-			}
+			TransactionEvent event = channelClient.sendTransaction(request).get();
+			Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"TransactionID: " + event.getTransactionID() + " on channel " + event.getChannelId());
 									
 		} catch (Exception e) {
 			e.printStackTrace();

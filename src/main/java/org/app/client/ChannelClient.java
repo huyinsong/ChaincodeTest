@@ -101,22 +101,19 @@ public class ChannelClient {
 	 * @throws InterruptedException 
 	 * @throws TimeoutException 
 	 */
-	public Collection<ProposalResponse> sendTransactionProposal(TransactionProposalRequest request)
+	public CompletableFuture<TransactionEvent> sendTransaction(TransactionProposalRequest request)
 			throws ProposalException, InvalidArgumentException, InterruptedException, ExecutionException, TimeoutException {
 		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Sending transaction proposal on channel " + channel.getName());
-		long beforeEndorsement =  System.currentTimeMillis();
 		Collection<ProposalResponse> response = channel.sendTransactionProposal(request, channel.getPeers());
-		long afterEndorsement =  System.currentTimeMillis();
-		System.out.println("Endorsement cost:"+ (afterEndorsement-beforeEndorsement));
 		Collection<ProposalResponse> successful = new LinkedList<>();
+		Collection<ProposalResponse> failed = new LinkedList<>();
 		for (ProposalResponse pres : response) {
-			String stringResponse = new String(pres.getChaincodeActionResponsePayload());
+			//String stringResponse = new String(pres.getChaincodeActionResponsePayload());
 			if (pres.getStatus() == ProposalResponse.Status.SUCCESS) {
                 successful.add(pres);
-            } 
-			
-			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Transaction proposal on channel " + channel.getName() + " " + pres.getMessage() + " "+ pres.getStatus() + " with transaction id:" + pres.getTransactionID());
-			//Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,stringResponse);
+            }else {
+            	failed.add(pres);
+            }
 		}
 
         Channel.NOfEvents nOfEvents = Channel.NOfEvents.createNofEvents();
@@ -124,24 +121,37 @@ public class ChannelClient {
             nOfEvents.addPeers(channel.getPeers(EnumSet.of(PeerRole.EVENT_SOURCE)));
         }
 		Collection<Orderer> orderers = channel.getOrderers();
-		long beforeTransaction = System.currentTimeMillis();
-		channel.sendTransaction(successful, Channel.TransactionOptions.createTransactionOptions().orderers(orderers).shuffleOrders(false).nOfEvents(nOfEvents)).thenApply(transactionEvent -> {
-			try {
-				System.out.println("transaction event :"+transactionEvent.isValid());
-                System.out.println("block index:"+transactionEvent.getBlockEvent().getBlockNumber());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return null;
-
-        }).get(30, TimeUnit.SECONDS);
-		long afterTransaction = System.currentTimeMillis();
-		System.out.println("Sending transaction cost:"+ (afterTransaction - beforeTransaction));
-		System.out.println("The end");
-
-		return response;
+		if(successful.size()== channel.getPeers().size()) {
+			CompletableFuture<TransactionEvent> result = channel.sendTransaction(successful, Channel.TransactionOptions.createTransactionOptions().orderers(orderers).shuffleOrders(false).nOfEvents(nOfEvents));
+			return result;
+		}else {
+			return null;
+		}
 	}
 
+	
+	public Collection<ProposalResponse> sendTransactionProposal(TransactionProposalRequest request) throws ProposalException, InvalidArgumentException, InterruptedException, ExecutionException, TimeoutException {
+		Logger.getLogger(ChannelClient.class.getName()).log(Level.INFO,"Sending transaction proposal on channel " + channel.getName());
+		Collection<ProposalResponse> response = channel.sendTransactionProposal(request, channel.getPeers());
+		Collection<ProposalResponse> successful = new LinkedList<>();
+		Collection<ProposalResponse> failed = new LinkedList<>();
+		for (ProposalResponse pres : response) {
+			//String stringResponse = new String(pres.getChaincodeActionResponsePayload());
+			if (pres.getStatus() == ProposalResponse.Status.SUCCESS) {
+                successful.add(pres);
+            }else {
+            	failed.add(pres);
+            }
+		}
+
+        Channel.NOfEvents nOfEvents = Channel.NOfEvents.createNofEvents();
+        if (!channel.getPeers(EnumSet.of(PeerRole.EVENT_SOURCE)).isEmpty()) {
+            nOfEvents.addPeers(channel.getPeers(EnumSet.of(PeerRole.EVENT_SOURCE)));
+        }
+		Collection<Orderer> orderers = channel.getOrderers();
+		channel.sendTransaction(successful, Channel.TransactionOptions.createTransactionOptions().orderers(orderers).shuffleOrders(false).nOfEvents(nOfEvents));
+		return successful;
+	}
 	/**
 	 * 
 	 * Instantiate chaincode.
