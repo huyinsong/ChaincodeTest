@@ -9,6 +9,7 @@ compileJava{
 
 dependencies {
     compile('org.hyperledger.fabric-sdk-java:fabric-sdk-java:1.2.0')
+    compile('org.json:json:20180813')
 }
 
 repositories {

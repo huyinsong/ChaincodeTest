@@ -1,6 +1,7 @@
 package org.app.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -19,6 +20,8 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +38,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.hyperledger.fabric.sdk.Enrollment;
 import org.hyperledger.fabric.sdk.User;
 import org.hyperledger.fabric.sdk.exception.CryptoException;
+import org.yaml.snakeyaml.Yaml;
 
 public class Util {
 
@@ -134,6 +138,52 @@ public class Util {
 		return enrollment;
 	}
 
+	public static CAEnrollment getEnrollment(String keyStr,  String certfile)throws IOException, NoSuchAlgorithmException, InvalidKeySpecException, CryptoException {
+		PrivateKey key = null;
+		String certificate = null;
+		InputStream isKey = null;
+		BufferedReader brKey = null;
+		InputStream isCert = null;
+		BufferedReader brCert = null;
+
+		try {
+			
+			isKey = new ByteArrayInputStream(keyStr.getBytes());
+			brKey = new BufferedReader(new InputStreamReader(isKey));
+			StringBuilder keyBuilder = new StringBuilder();
+
+			for (String line = brKey.readLine(); line != null; line = brKey.readLine()) {
+				if (line.indexOf("PRIVATE") == -1) {
+					keyBuilder.append(line);
+				}
+			}
+			
+			byte[] encoded = DatatypeConverter.parseBase64Binary(keyBuilder.toString());
+			PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
+			KeyFactory kf = KeyFactory.getInstance("ECDSA");
+			key = kf.generatePrivate(keySpec);
+			
+			
+			isCert = new FileInputStream(certfile);
+			brCert = new BufferedReader(new InputStreamReader(isCert));
+			StringBuilder certBuilder = new StringBuilder();
+			for (String line = brCert.readLine(); line != null; line = brCert.readLine()) {
+				certBuilder.append(line);
+			}
+			certificate = new String(certBuilder.toString());
+
+			
+		} finally {
+			isKey.close();
+			brKey.close();
+			isCert.close();
+			brCert.close();
+		}
+
+		CAEnrollment enrollment = new CAEnrollment(key, certificate);
+		return enrollment;
+	}
+	
 	public static void cleanUp() {
 		String directoryPath = "users";
 		File directory = new File(directoryPath);
@@ -224,5 +274,28 @@ public class Util {
 		PrivateKey privateKey = new JcaPEMKeyConverter().setProvider(BouncyCastleProvider.PROVIDER_NAME)
 				.getPrivateKey(pemPair);
 		return privateKey;
+	}
+	
+	public static Iterable<Object>  loadConfig(String config_file) {
+		Iterable<Object> configuration = null;
+		try {
+			Yaml yaml = new Yaml();
+			configuration = yaml.loadAll(new FileInputStream(new File(config_file)));
+			return configuration;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		Iterable<Object> configuration = Util.loadConfig("/home/huyinsong/Documents/connection.yaml");
+		for (Object obj: configuration) {
+			
+			Map<String,Object> map= (HashMap<String,Object>)obj;
+			System.out.println(map.get("client"));
+			
+		}
 	}
 }
