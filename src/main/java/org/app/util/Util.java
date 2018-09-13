@@ -168,9 +168,9 @@ public class Util {
 			brCert = new BufferedReader(new InputStreamReader(isCert));
 			StringBuilder certBuilder = new StringBuilder();
 			for (String line = brCert.readLine(); line != null; line = brCert.readLine()) {
-				certBuilder.append(line);
+				certBuilder.append(line).append("\n");
 			}
-			certificate = new String(certBuilder.toString());
+			certificate = certBuilder.subSequence(0, certBuilder.lastIndexOf("\n")).toString();
 
 			
 		} finally {
