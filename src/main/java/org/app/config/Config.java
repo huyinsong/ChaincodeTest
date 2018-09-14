@@ -28,7 +28,7 @@ public class Config {
 	public static final String ORG2_USR_ADMIN_PK = ORG2_USR_BASE_PATH + "/keystore";
 	public static final String ORG2_USR_ADMIN_CERT = ORG2_USR_BASE_PATH + "/admincerts";
 	
-	public static final String CA_ORG1_URL = "http://localhost:7054";
+	public static final String CA_ORG1_URL = "https://localhost:7054";
 	
 	public static final String CA_ORG2_URL = "http://localhost:8054";
 	

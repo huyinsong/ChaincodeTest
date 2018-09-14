@@ -14,8 +14,9 @@ public class InvokeQueryChaincode {
 	public static void main(String args[]) {
 		try {
 			Util.cleanUp();
-            FabricClient client = new FabricClient();
-			client.initClient("/Users/huyinsong/workspace/java/ChaincodeTest/resources/connection.yaml");
+            FabricClient client = new FabricClient("/Users/huyinsong/workspace/java/ChaincodeTest/resources/connection.yaml");
+			client.initClient();
+			client.enrollUser("huyinsong","org1");
 			client.initChannel("mychannel");
 			HFClient c = client.getInstance();
 			c.getChannel("mychannel").getPeers().forEach(peer -> {
@@ -25,7 +26,8 @@ public class InvokeQueryChaincode {
 				System.out.println(peer.getName());
 			});
 			TransactionEvent event = client.invokeChaincode("mychannel", "put", "say", "hello kitty", "test", "1").get();
-			System.out.println(event.getChannelId());
+			System.out.println("Transaction ID"+event.getTransactionID()+";Block height:"+event.getBlockEvent().getBlockNumber());
+		
 			Collection<ProposalResponse> responses = client.queryByChainCode("mychannel", "test", "get", "say");
 			responses.forEach(response ->{
 				try {
