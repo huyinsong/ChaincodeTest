@@ -84,6 +84,8 @@ public class InvokeChaincode {
 			orderer_properties.setProperty("hostnameOverride", Config.ORDERER_NAME);
 			orderer_properties.setProperty("sshProvider", "openSSL");
 			orderer_properties.setProperty("negotiationType", "TLS");
+			orderer_properties.setProperty("clientKeyFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"client.pem");
+			orderer_properties.setProperty("clientCertFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"client.crt");
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL,orderer_properties);
 					
 			final PeerOptions peerEventingOptions =  PeerOptions.createPeerOptions().registerEventsForBlocks().registerEventsForFilteredBlocks().setPeerRoles(EnumSet.of(PeerRole.ENDORSING_PEER, PeerRole.LEDGER_QUERY, PeerRole.CHAINCODE_QUERY, PeerRole.EVENT_SOURCE));

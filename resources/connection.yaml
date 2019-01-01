@@ -216,7 +216,7 @@ peers:
           
 certificateAuthorities:
   ca-org1:
-    url: http://localhost:7054
+    url: https://ca.org1.example.com:7054
     httpOptions:
       verify: true
     tlsCACerts:
@@ -238,8 +238,8 @@ certificateAuthorities:
           -----END CERTIFICATE-----
           
       client:
-        keyfile: path/to/tls/fabricca/certs/client/client_fabric_client-key.pem
-        certfile: path/to/tls/fabricca/certs/client/client_fabric_client.pem
+        keyfile: /Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config/peerOrganizations/org1.example.com/tlsca/client.pem
+        certfile: /Users/huyinsong/workspace/java/blockchain-application-using-fabric-java-sdk/network_resources/crypto-config/peerOrganizations/org1.example.com/tlsca/client.crt
     registrar:
        enrollId: admin
        enrollSecret: adminpw

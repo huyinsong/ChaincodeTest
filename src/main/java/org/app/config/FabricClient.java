@@ -82,7 +82,7 @@ public class FabricClient {
 	public UserContext enrollUser(String username,String affiliation) throws Exception {
 		NetworkConfig.OrgInfo org = networkConfig.getOrganizationInfo("Org1");
         CAInfo caInfo = org.getCertificateAuthorities().get(0);
-
+        
         HFCAClient hfcaClient = HFCAClient.createNewInstance(caInfo);
         HFCAInfo info = hfcaClient.info();
         System.out.println(info.getCACertificateChain());
@@ -96,6 +96,17 @@ public class FabricClient {
         RegistrationRequest rr = new RegistrationRequest(context.getName(), context.getAffiliation());
         context.setEnrollment(hfcaClient.enroll(context.getName(), hfcaClient.register(rr, registrar)));
         return context;
+	}
+	
+	public void addMutualTLSSupport() {
+		networkConfig.getOrdererNames().forEach(name ->{
+			try {
+				networkConfig.getOrdererProperties((String)name).setProperty("clientKeyFile", "");
+				networkConfig.getOrdererProperties((String)name).setProperty("clientCertFile", "");
+			} catch (InvalidArgumentException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 	
 	public CompletableFuture<TransactionEvent> invokeChaincode(String channel_name,String function,String key, String value,String chaincode_id,String version)throws ProposalException, InvalidArgumentException, InterruptedException, ExecutionException, TimeoutException {

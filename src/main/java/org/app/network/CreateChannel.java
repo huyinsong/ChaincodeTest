@@ -58,6 +58,8 @@ public class CreateChannel {
 			orderer_properties.setProperty("hostnameOverride", Config.ORDERER_NAME);
 			orderer_properties.setProperty("sshProvider", "openSSL");
 			orderer_properties.setProperty("negotiationType", "TLS");
+			orderer_properties.setProperty("clientKeyFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"client.pem");
+			orderer_properties.setProperty("clientCertFile", Config.ORDERER_TLS_CERT_PATH+File.separator+"client.crt");
 			
 			Orderer orderer = fabClient.getInstance().newOrderer(Config.ORDERER_NAME, Config.ORDERER_URL,orderer_properties);
 			ChannelConfiguration channelConfiguration = new ChannelConfiguration(new File(Config.CHANNEL_CONFIG_PATH));
